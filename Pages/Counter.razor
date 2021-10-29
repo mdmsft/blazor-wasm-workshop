@@ -1,0 +1,37 @@
+﻿@using System.Runtime.InteropServices
+@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<ErrorBoundary @ref="errorBoundary">
+    <ChildContent>        
+        <p role="status">Current count: @currentCount</p>
+        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+        @if (currentCount == 3)
+        {
+            throw new Exception();
+        }
+    </ChildContent>
+    <ErrorContent>
+        Sorry, an error occured
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int currentCount { get; set; } = 0;
+
+    ErrorBoundary errorBoundary;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        Console.WriteLine(factorial(currentCount));
+    }
+
+    [DllImport("Factorial")]
+    static extern int factorial(int n);
+}

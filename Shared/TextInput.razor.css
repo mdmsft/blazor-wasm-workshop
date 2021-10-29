@@ -1,0 +1,7 @@
+﻿.text-default {
+	border: 1px solid black;
+}
+
+.text-required {
+	border: 2px dashed red;
+}

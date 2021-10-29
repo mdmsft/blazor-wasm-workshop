@@ -1,0 +1,50 @@
+﻿@page "/"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div id="my-counter"></div>
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<p>Current Time is: @currentTime</p>
+
+@code {
+	private Timer timer;
+
+	private string currentTime = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		timer = new Timer(OnTick, default, 0, 1000);
+
+		var dataReference = await JSRuntime.InvokeAsync<IJSStreamReference>("getStream");
+		using var dataReferenceStream = await dataReference.OpenReadStreamAsync(maxAllowedSize: 10_000_000);
+
+		using var data = new MemoryStream(new byte[100 * 1024]);
+		using var streamRef = new DotNetStreamReference(stream: data, leaveOpen: false);
+		await JSRuntime.InvokeVoidAsync("setStream", streamRef);
+
+	}
+
+	private void OnTick(object state)
+	{
+		InvokeAsync(() =>
+		{
+			Console.Write(DateTime.Now.ToShortTimeString());
+			currentTime = DateTime.Now.ToShortTimeString();
+			StateHasChanged();
+		});
+	}
+
+	public void Dispose()
+	{
+		timer?.Dispose();
+	}
+}

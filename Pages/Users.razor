@@ -1,0 +1,60 @@
+﻿@page "/users"
+@inject UserService Service
+<h1>Users</h1>
+
+if (users is null)
+{
+	<p>Loading...</p>
+}
+else
+{
+	<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Address</th>
+			<th>Phone</th>
+		</tr>
+	</thead>
+	<tbody>
+		<Virtualize Context="user" ItemsProvider="LoadUsers">
+			<tr>
+				<td>@user.Name</td>
+				<td>@user.Address</td>
+				<td>@user.Phone</td>
+			</tr>
+		</Virtualize>
+		<Virtualize Context="user" Items="users">
+			<tr>
+				<td>@user.Name</td>
+				<td>@user.Address</td>
+				<td>@user.Phone</td>
+			</tr>
+		</Virtualize>
+	</tbody>
+</table>
+}
+
+
+@code {
+	private ICollection<User> users;
+
+	private int Count = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		users = users = await Service.GetUsersAsync(0);
+	}
+
+	public override Task SetParametersAsync(ParameterView parameters)
+	{
+		Count = parameters.GetValueOrDefault<int>(nameof(Count), 0);
+		return base.SetParametersAsync(parameters);
+	}
+
+	private async ValueTask<ItemsProviderResult<User>> LoadUsers(ItemsProviderRequest request)
+	{
+		var users = await Service.GetUsersAsync(request.StartIndex);
+		return new ItemsProviderResult<User>(users, users.Count);
+	}
+}
